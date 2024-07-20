@@ -1,7 +1,11 @@
 ﻿
 namespace WorkflowUsingDAG
 {
-   class Graph<T>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    public class Graph<T>
     {
         public Dictionary<T, Node<T>> Nodes { get; set; }
 
@@ -10,11 +14,11 @@ namespace WorkflowUsingDAG
             Nodes = new Dictionary<T, Node<T>>();
         }
 
-        public void AddNode(T value, Func<object[], object> handler, ExecutionMode mode)
+        public void AddNode(T value, Type handlerType, ExecutionMode mode)
         {
             if (!Nodes.ContainsKey(value))
             {
-                Nodes[value] = new Node<T>(value, handler, mode);
+                Nodes[value] = new Node<T>(value, handlerType, mode);
             }
         }
 
@@ -33,4 +37,5 @@ namespace WorkflowUsingDAG
             return Nodes.Values.Where(n => n.Dependencies.Any(d => d.Value.Equals(nodeValue))).ToList();
         }
     }
+
 }

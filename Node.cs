@@ -1,30 +1,35 @@
-﻿
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace WorkflowUsingDAG
 {
-    enum ExecutionMode
+
+    public enum ExecutionMode
     {
         Automatic,
         Manual
     }
-
-    class Node<T>
+    public class Node<T>
     {
         public T Value { get; set; }
         public List<Node<T>> Dependencies { get; set; }
-        public Func<object[], object> Handler { get; set; }
+        public Type HandlerType { get; set; }
         public ExecutionMode Mode { get; set; }
 
-        public Node(T value, Func<object[], object> handler, ExecutionMode mode)
+        public Node(T value, Type handlerType, ExecutionMode mode)
         {
             Value = value;
-            Handler = handler;
+            HandlerType = handlerType;
             Mode = mode;
             Dependencies = new List<Node<T>>();
         }
 
-        public object Execute(object[] inputs)
+        public async Task<object> Execute(IServiceProvider serviceProvider, object[] inputs)
         {
-            return Handler?.Invoke(inputs);
+            var handler = (ITaskHandler)serviceProvider.GetRequiredService(HandlerType);
+            return await handler.ExecuteAsync(inputs);
         }
     }
 }
