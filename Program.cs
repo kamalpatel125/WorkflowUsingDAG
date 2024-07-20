@@ -55,16 +55,15 @@ namespace WorkflowUsingDAG
                                                             Task1 (Start Workflow Node) (A)
                                                                 |                       |    
                                                                 V                       V
-                                    Task2 Task4 (Depends on Task3)(M)                 Task3 (Depends on Task1) (A)
-                                                    |                                            |   
-                                                    |                                            V
-                                                    |                                 Task4 (Depends on Task3) (A)
-                                                    |                                    |    
-                                                    V                                    V
+                                                Task2 (Depends on Task1)(M)        Task3 (Depends on Task1) (A)
+                                                        |                                    |   
+                                                        |                                    V
+                                                        |                              Task4 (Depends on Task3) (A)
+                                                        |                                    |    
+                                                        V                                    V
                                         Task5 (Depends on Task2 and Task4) (End Workflow Node) (A)
              * *************************************************************************************************************************
             */
-
 
 
             workflow.Execute();
