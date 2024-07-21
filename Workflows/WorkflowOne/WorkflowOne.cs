@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WorkflowUsingDAG.WorkFlow;
-using WorkflowUsingDAG.WorkflowManager;
+using WorkflowUsingDAG.WorkflowEngine;
 
 namespace WorkflowUsingDAG.Workflows.WorkflowOne
 {
@@ -19,7 +19,7 @@ namespace WorkflowUsingDAG.Workflows.WorkflowOne
         {
             var configureWorkflowTasks = new WorkflowOneGraph();
             var workflowGraph = configureWorkflowTasks.ConfigureWorkflowTasks();
-            var workflowManager = new WorkflowManager.WorkflowManager(serviceProvider, workflowGraph);
+            var workflowManager = new WorkflowEngine.WorkflowManager(serviceProvider, workflowGraph);
             var instance = workflowManager.CreateWorkflowInstance();
 
 

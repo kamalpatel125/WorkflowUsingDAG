@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using WorkflowUsingDAG.WorkFlow;
 
-namespace WorkflowUsingDAG.WorkflowManager
+namespace WorkflowUsingDAG.WorkflowEngine
 {
     public enum ExecutionMode
     {
