@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkflowUsingDAG
+namespace WorkflowUsingDAG.WorkFlow
 {
     public class Task1Handler : ITaskHandler
     {

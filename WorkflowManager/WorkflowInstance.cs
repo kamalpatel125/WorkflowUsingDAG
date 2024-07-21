@@ -4,45 +4,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkflowUsingDAG
+namespace WorkflowUsingDAG.WorkflowManager
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
 
-    public class Workflow
+    public class WorkflowInstance
     {
         private readonly IServiceProvider serviceProvider;
-        private Graph<string> graph;
-        private Queue<string> manualTaskQueue;
-        private Dictionary<string, object> outputs;
-        private Dictionary<string, List<string>> dependentTasks;
-        private HashSet<string> executedTasks;
-        private Dictionary<string, List<object>> pendingInputs;
+        private readonly Graph<string> graph;
+        private readonly Queue<string> manualTaskQueue;
+        private readonly Dictionary<string, object> outputs;
+        private readonly Dictionary<string, List<string>> dependentTasks;
+        private readonly HashSet<string> executedTasks;
+        private readonly Dictionary<string, List<object>> pendingInputs;
 
-        public Workflow(IServiceProvider serviceProvider)
+        public string Id { get; }
+        public bool IsCompleted { get; private set; }
+
+        public WorkflowInstance(IServiceProvider serviceProvider, Graph<string> graph)
         {
             this.serviceProvider = serviceProvider;
-            graph = new Graph<string>();
+            this.graph = graph;
             manualTaskQueue = new Queue<string>();
             outputs = new Dictionary<string, object>();
             dependentTasks = new Dictionary<string, List<string>>();
             executedTasks = new HashSet<string>();
             pendingInputs = new Dictionary<string, List<object>>();
-        }
+            Id = Guid.NewGuid().ToString();
+            IsCompleted = false;
 
-        public void AddTask(string task, Type handlerType, ExecutionMode mode)
-        {
-            graph.AddNode(task, handlerType, mode);
-            dependentTasks[task] = new List<string>();
-            pendingInputs[task] = new List<object>();
-        }
-
-        public void AddDependency(string task, string dependentTask)
-        {
-            graph.AddDependency(task, dependentTask);
-            dependentTasks[dependentTask].Add(task);
+            foreach (var node in graph.Nodes.Keys)
+            {
+                dependentTasks[node] = new List<string>();
+                pendingInputs[node] = new List<object>();
+            }
         }
 
         public async Task Execute()
@@ -56,6 +55,8 @@ namespace WorkflowUsingDAG
                     await ExecuteTask(taskName, new object[0]);
                 }
             }
+
+            CheckCompletion();
         }
 
         private async Task ExecuteTask(string taskName, object[] inputs)
@@ -88,12 +89,16 @@ namespace WorkflowUsingDAG
             var dependentNodes = graph.GetDependentNodes(taskName);
             foreach (var dependentNode in dependentNodes)
             {
+                pendingInputs[dependentNode.Value].Add(output);
+
                 if (dependentNode.Dependencies.All(dep => executedTasks.Contains(dep.Value)))
                 {
-                    var inputs = dependentNode.Dependencies.Select(dep => outputs[dep.Value]).ToArray();
+                    var inputs = pendingInputs[dependentNode.Value].ToArray();
                     await ExecuteTask(dependentNode.Value, inputs);
                 }
             }
+
+            CheckCompletion();
         }
 
         public async Task ExecuteManualTaskWithDelay(string taskName, int delayInSeconds)
@@ -126,6 +131,14 @@ namespace WorkflowUsingDAG
             {
                 Console.WriteLine($"Task {taskName} does not exist.");
             }
+
+            CheckCompletion();
+        }
+
+        private void CheckCompletion()
+        {
+            IsCompleted = graph.Nodes.Keys.All(task => executedTasks.Contains(task));
         }
     }
+
 }

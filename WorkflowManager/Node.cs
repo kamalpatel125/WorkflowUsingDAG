@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WorkflowUsingDAG.WorkFlow;
 
-namespace WorkflowUsingDAG
+namespace WorkflowUsingDAG.WorkflowManager
 {
-
     public enum ExecutionMode
     {
         Automatic,

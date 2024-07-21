@@ -1,5 +1,4 @@
-﻿
-namespace WorkflowUsingDAG
+﻿namespace WorkflowUsingDAG.WorkflowManager
 {
     using System;
     using System.Collections.Generic;

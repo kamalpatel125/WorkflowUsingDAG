@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using WorkflowUsingDAG.WorkFlow;
+using WorkflowUsingDAG.Workflows.WorkflowOne;
+using WorkflowUsingDAG.Workflows.WorkflowTwo;
 
 namespace WorkflowUsingDAG
 {
- 
+
     class Program
     {
         static async Task Main(string[] args)
@@ -15,11 +18,22 @@ namespace WorkflowUsingDAG
                 .AddSingleton<Task5Handler>()
                 .BuildServiceProvider();
 
-            var workflowDefinition1 = new WorkflowDefinition1(serviceProvider);
-            await workflowDefinition1.ConfigureAndExecuteWorkflow();
+            var WorkflowOneInstance1 = new WorkflowOne(serviceProvider);
+            await WorkflowOneInstance1.ConfigureAndExecuteWorkflow();
 
-            var workflowDefinition2 = new WorkflowDefinition2(serviceProvider);
-            await workflowDefinition2.ConfigureAndExecuteWorkflow();
+            var WorkflowOneInstance2 = new WorkflowOne(serviceProvider);
+            await WorkflowOneInstance2.ConfigureAndExecuteWorkflow();
+
+
+            var WorkflowTwoInstance1 = new WorkflowTwo(serviceProvider);
+            await WorkflowTwoInstance1.ConfigureAndExecuteWorkflow();
+
+            var WorkflowTwoInstance2 = new WorkflowTwo(serviceProvider);
+            await WorkflowTwoInstance2.ConfigureAndExecuteWorkflow();
+            
+            var WorkflowTwoInstance3 = new WorkflowTwo(serviceProvider);
+            await WorkflowTwoInstance3.ConfigureAndExecuteWorkflow();
+
         }
     }
 

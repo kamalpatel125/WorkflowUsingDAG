@@ -1,5 +1,4 @@
-﻿
-namespace WorkflowUsingDAG
+﻿namespace WorkflowUsingDAG.WorkflowManager
 {
     class TopologicalSorter<T>
     {
