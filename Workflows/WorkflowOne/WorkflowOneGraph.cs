@@ -26,6 +26,25 @@ namespace WorkflowUsingDAG
             graph.AddDependency("Task3", "Task4");
             graph.AddDependency("Task2", "Task5");
             graph.AddDependency("Task4", "Task5");
+
+         /*
+         *************************************************************************************************************************
+                             Workflow Graph Setup  (A - Automatic Task, M - Manual task)
+         *************************************************************************************************************************                    
+
+                                                        Task1 (Start Workflow Node) (A)
+                                                            |                       |    
+                                                            V                       V
+                                            Task2 (Depends on Task1)(M)        Task3 (Depends on Task1) (A)
+                                                    |                                    |   
+                                                    |                                    V
+                                                    |                          Task4 (Depends on Task3) (A)
+                                                    |                                    |    
+                                                    V                                    V
+                                    Task5 (Depends on Task2 and Task4) (End Workflow Node) (A)
+         **************************************************************************************************************************
+        */
+
             return graph;
         }
     }
