@@ -19,8 +19,8 @@ namespace WorkflowUsingDAG
             graph.AddNode("Task2", typeof(Task2Handler), ExecutionMode.Automatic);
             graph.AddNode("Task3", typeof(Task3Handler), ExecutionMode.Automatic);
             
-            graph.AddDependency("Task1", "Task2");
-            graph.AddDependency("Task1", "Task3");
+            graph.AddDependency("Task1", "Task2", DependencyType.And);
+            graph.AddDependency("Task1", "Task3", DependencyType.And);
 
             /*
 *************************************************************************************************************************

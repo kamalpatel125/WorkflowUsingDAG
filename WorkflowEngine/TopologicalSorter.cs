@@ -1,44 +1,60 @@
 ﻿namespace WorkflowUsingDAG.WorkflowEngine
 {
-    class TopologicalSorter<T>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    public static class TopologicalSorter<T>
     {
         public static List<T> Sort(Graph<T> graph)
         {
-            var sortedList = new List<T>();
+            var sorted = new List<T>();
             var visited = new HashSet<T>();
-            var tempMarked = new HashSet<T>();
+            var visiting = new HashSet<T>();
 
             foreach (var node in graph.Nodes.Values)
             {
                 if (!visited.Contains(node.Value))
                 {
-                    Visit(node, visited, tempMarked, sortedList);
+                    if (!Visit(node, visited, visiting, sorted))
+                    {
+                        throw new InvalidOperationException("Graph has a cycle.");
+                    }
                 }
             }
 
-            return sortedList;
+            return sorted;
         }
 
-        private static void Visit(Node<T> node, HashSet<T> visited, HashSet<T> tempMarked, List<T> sortedList)
+        private static bool Visit(Node<T> node, HashSet<T> visited, HashSet<T> visiting, List<T> sorted)
         {
-            if (tempMarked.Contains(node.Value))
+            if (visiting.Contains(node.Value))
             {
-                throw new InvalidOperationException("The graph contains a cycle.");
+                // Node is in the visiting set, which means we have a cycle.
+                return false;
             }
 
             if (!visited.Contains(node.Value))
             {
-                tempMarked.Add(node.Value);
+                // Mark the node as visiting
+                visiting.Add(node.Value);
 
                 foreach (var dependency in node.Dependencies)
                 {
-                    Visit(dependency, visited, tempMarked, sortedList);
+                    if (!Visit(dependency.Node, visited, visiting, sorted))
+                    {
+                        return false;
+                    }
                 }
 
-                tempMarked.Remove(node.Value);
+                // Mark the node as visited
+                visiting.Remove(node.Value);
                 visited.Add(node.Value);
-                sortedList.Add(node.Value);
+                sorted.Add(node.Value);
             }
+
+            return true;
         }
     }
+
 }

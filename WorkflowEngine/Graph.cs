@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     public class Graph<T>
     {
         public Dictionary<T, Node<T>> Nodes { get; set; }
@@ -21,19 +20,21 @@
             }
         }
 
-        public void AddDependency(T from, T to)
+        public void AddDependency(T from, T to, DependencyType dependencyType)
         {
             if (!Nodes.ContainsKey(from) || !Nodes.ContainsKey(to))
             {
                 throw new ArgumentException("Both nodes must be added before adding a dependency.");
             }
 
-            Nodes[to].Dependencies.Add(Nodes[from]);
+            Nodes[to].Dependencies.Add((Nodes[from], dependencyType));
         }
 
         public List<Node<T>> GetDependentNodes(T nodeValue)
         {
-            return Nodes.Values.Where(n => n.Dependencies.Any(d => d.Value.Equals(nodeValue))).ToList();
+            return Nodes.Values
+                        .Where(n => n.Dependencies.Any(d => d.Node.Value.Equals(nodeValue)))
+                        .ToList();
         }
     }
 

@@ -91,10 +91,38 @@ namespace WorkflowUsingDAG.WorkflowEngine
             {
                 pendingInputs[dependentNode.Value].Add(output);
 
-                if (dependentNode.Dependencies.All(dep => executedTasks.Contains(dep.Value)))
+                bool canExecute = true;
+                var inputs = new List<object>();
+
+                foreach (var (dependency, dependencyType) in dependentNode.Dependencies)
                 {
-                    var inputs = pendingInputs[dependentNode.Value].ToArray();
-                    await ExecuteTask(dependentNode.Value, inputs);
+                    if (dependencyType == DependencyType.And)
+                    {
+                        if (!executedTasks.Contains(dependency.Value))
+                        {
+                            canExecute = false;
+                            break;
+                        }
+                    }
+                    else if (dependencyType == DependencyType.Or)
+                    {
+                        if (executedTasks.Contains(dependency.Value))
+                        {
+                            inputs.Add(outputs[dependency.Value]);
+                            canExecute = true;
+                            break;
+                        }
+                        else
+                        {
+                            canExecute = false;
+                        }
+                    }
+                    inputs.Add(outputs[dependency.Value]);
+                }
+
+                if (canExecute)
+                {
+                    await ExecuteTask(dependentNode.Value, inputs.ToArray());
                 }
             }
 
@@ -115,7 +143,7 @@ namespace WorkflowUsingDAG.WorkflowEngine
                 if (task.Mode == ExecutionMode.Manual && manualTaskQueue.Contains(taskName))
                 {
                     Console.WriteLine($"Manually executing task: {task.Value}");
-                    var inputs = task.Dependencies.Select(dep => outputs[dep.Value]).ToArray();
+                    var inputs = task.Dependencies.Select(dep => outputs[dep.Node.Value]).ToArray();
                     var output = await task.Execute(serviceProvider, inputs);
                     outputs[taskName] = output;
                     executedTasks.Add(taskName);
@@ -140,5 +168,6 @@ namespace WorkflowUsingDAG.WorkflowEngine
             IsCompleted = graph.Nodes.Keys.All(task => executedTasks.Contains(task));
         }
     }
+
 
 }

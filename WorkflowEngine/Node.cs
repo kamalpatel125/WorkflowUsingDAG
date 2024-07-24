@@ -11,10 +11,16 @@ namespace WorkflowUsingDAG.WorkflowEngine
         Automatic,
         Manual
     }
+    public enum DependencyType
+    {
+        And,
+        Or
+    }
+
     public class Node<T>
     {
         public T Value { get; set; }
-        public List<Node<T>> Dependencies { get; set; }
+        public List<(Node<T> Node, DependencyType DependencyType)> Dependencies { get; set; }
         public Type HandlerType { get; set; }
         public ExecutionMode Mode { get; set; }
 
@@ -23,7 +29,7 @@ namespace WorkflowUsingDAG.WorkflowEngine
             Value = value;
             HandlerType = handlerType;
             Mode = mode;
-            Dependencies = new List<Node<T>>();
+            Dependencies = new List<(Node<T> Node, DependencyType DependencyType)>();
         }
 
         public async Task<object> Execute(IServiceProvider serviceProvider, object[] inputs)

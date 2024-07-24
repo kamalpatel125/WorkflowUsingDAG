@@ -27,10 +27,6 @@ namespace WorkflowUsingDAG.Workflows.WorkflowTwo
             // Automatically execute the automatic task
             await workflowManager.ExecuteWorkflowInstance(instance.Id);
 
-            // Manually execute the manual task after a delay
-            await workflowManager.ExecuteManualTaskWithDelay(instance.Id, "Task2", 5);
-            // Execution will automatically continue after the manual task
-
             // Check if the workflow instance has completed
             var isCompleted = workflowManager.IsWorkflowInstanceCompleted(instance.Id);
             Console.WriteLine($"Workflow instance {instance.Id} completed: {isCompleted}");
