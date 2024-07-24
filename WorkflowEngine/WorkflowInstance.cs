@@ -18,7 +18,6 @@ namespace WorkflowUsingDAG.WorkflowEngine
         private readonly Graph<string> graph;
         private readonly Queue<string> manualTaskQueue;
         private readonly Dictionary<string, object> outputs;
-        private readonly Dictionary<string, List<string>> dependentTasks;
         private readonly HashSet<string> executedTasks;
         private readonly Dictionary<string, List<object>> pendingInputs;
 
@@ -31,7 +30,6 @@ namespace WorkflowUsingDAG.WorkflowEngine
             this.graph = graph;
             manualTaskQueue = new Queue<string>();
             outputs = new Dictionary<string, object>();
-            dependentTasks = new Dictionary<string, List<string>>();
             executedTasks = new HashSet<string>();
             pendingInputs = new Dictionary<string, List<object>>();
             Id = Guid.NewGuid().ToString();
@@ -39,7 +37,6 @@ namespace WorkflowUsingDAG.WorkflowEngine
 
             foreach (var node in graph.Nodes.Keys)
             {
-                dependentTasks[node] = new List<string>();
                 pendingInputs[node] = new List<object>();
             }
         }
@@ -94,30 +91,27 @@ namespace WorkflowUsingDAG.WorkflowEngine
                 bool canExecute = true;
                 var inputs = new List<object>();
 
-                foreach (var (dependency, dependencyType) in dependentNode.Dependencies)
+                foreach (var (dependencyNode, dependencyType) in dependentNode.Dependencies)
                 {
                     if (dependencyType == DependencyType.And)
                     {
-                        if (!executedTasks.Contains(dependency.Value))
+                        if (!executedTasks.Contains(dependencyNode.Value))
                         {
                             canExecute = false;
                             break;
                         }
+                        inputs.Add(outputs[dependencyNode.Value]);
                     }
                     else if (dependencyType == DependencyType.Or)
                     {
-                        if (executedTasks.Contains(dependency.Value))
+                        if (executedTasks.Contains(dependencyNode.Value))
                         {
-                            inputs.Add(outputs[dependency.Value]);
+                            inputs.Add(outputs[dependencyNode.Value]);
                             canExecute = true;
                             break;
                         }
-                        else
-                        {
-                            canExecute = false;
-                        }
+                        canExecute = false;
                     }
-                    inputs.Add(outputs[dependency.Value]);
                 }
 
                 if (canExecute)
@@ -143,7 +137,7 @@ namespace WorkflowUsingDAG.WorkflowEngine
                 if (task.Mode == ExecutionMode.Manual && manualTaskQueue.Contains(taskName))
                 {
                     Console.WriteLine($"Manually executing task: {task.Value}");
-                    var inputs = task.Dependencies.Select(dep => outputs[dep.Node.Value]).ToArray();
+                    var inputs = pendingInputs[taskName].ToArray();
                     var output = await task.Execute(serviceProvider, inputs);
                     outputs[taskName] = output;
                     executedTasks.Add(taskName);
@@ -168,6 +162,5 @@ namespace WorkflowUsingDAG.WorkflowEngine
             IsCompleted = graph.Nodes.Keys.All(task => executedTasks.Contains(task));
         }
     }
-
 
 }

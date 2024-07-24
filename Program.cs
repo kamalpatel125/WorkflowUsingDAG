@@ -21,8 +21,8 @@ namespace WorkflowUsingDAG
             var WorkflowOneInstance1 = new WorkflowOne(serviceProvider);
             await WorkflowOneInstance1.ConfigureAndExecuteWorkflow();
 
-            var WorkflowOneInstance2 = new WorkflowOne(serviceProvider);
-            await WorkflowOneInstance2.ConfigureAndExecuteWorkflow();
+            //var WorkflowOneInstance2 = new WorkflowOne(serviceProvider);
+            //await WorkflowOneInstance2.ConfigureAndExecuteWorkflow();
 
 
             //var WorkflowTwoInstance1 = new WorkflowTwo(serviceProvider);
