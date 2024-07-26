@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WorkflowUsingDAG.WorkflowEngine;
-using WorkflowUsingDAG.WorkFlow;
 
-namespace WorkflowUsingDAG
+namespace WorkflowUsingDAG.Workflows.WorkflowTwo
 {
     class WorkflowTwoGraph
     {
@@ -15,10 +14,10 @@ namespace WorkflowUsingDAG
             var graph = new Graph<string>();
 
             // Define tasks and dependencies
-            graph.AddNode("Task1", typeof(Task1Handler), ExecutionMode.Automatic);
-            graph.AddNode("Task2", typeof(Task2Handler), ExecutionMode.Automatic);
-            graph.AddNode("Task3", typeof(Task3Handler), ExecutionMode.Automatic);
-            
+            graph.AddNode("Task1", "Task1Handler", ExecutionMode.Automatic);
+            graph.AddNode("Task2", "Task2Handler", ExecutionMode.Automatic);
+            graph.AddNode("Task3", "Task3Handler", ExecutionMode.Automatic);
+
             graph.AddDependency("Task1", "Task2", DependencyType.And);
             graph.AddDependency("Task1", "Task3", DependencyType.And);
 

@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
-using WorkflowUsingDAG.WorkFlow;
+using WorkflowUsingDAG.WorkflowEngine;
 
 namespace WorkflowUsingDAG.WorkflowEngine
 {
@@ -21,21 +22,28 @@ namespace WorkflowUsingDAG.WorkflowEngine
     {
         public T Value { get; set; }
         public List<(Node<T> Node, DependencyType DependencyType)> Dependencies { get; set; }
-        public Type HandlerType { get; set; }
+        public string HandlerTypeName { get; set; }
         public ExecutionMode Mode { get; set; }
 
-        public Node(T value, Type handlerType, ExecutionMode mode)
+        public Node(T value, string handlerTypeName, ExecutionMode mode)
         {
             Value = value;
-            HandlerType = handlerType;
+            HandlerTypeName = handlerTypeName;
             Mode = mode;
             Dependencies = new List<(Node<T> Node, DependencyType DependencyType)>();
         }
 
         public async Task<object> Execute(IServiceProvider serviceProvider, object[] inputs)
         {
-            var handler = (ITaskHandler)serviceProvider.GetRequiredService(HandlerType);
+            var handlerType = ResolveHandlerType(HandlerTypeName);
+            var handler = (ITaskHandler)serviceProvider.GetRequiredService(handlerType);
             return await handler.ExecuteAsync(inputs);
+        }
+
+        private Type ResolveHandlerType(string handlerTypeName)
+        {
+            return Assembly.GetExecutingAssembly().GetType(handlerTypeName)
+                   ?? throw new InvalidOperationException($"Handler type '{handlerTypeName}' not found.");
         }
     }
 

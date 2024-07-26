@@ -9,38 +9,28 @@
 
     public class Graph<T>
     {
-        public Dictionary<T, Node<T>> Nodes { get; set; }
+        public Dictionary<T, Node<T>> Nodes { get; private set; } = new Dictionary<T, Node<T>>();
 
-        public Graph()
-        {
-            Nodes = new Dictionary<T, Node<T>>();
-        }
-
-        public void AddNode(T value, Type handlerType, ExecutionMode mode)
+        public void AddNode(T value, string handlerTypeName, ExecutionMode mode)
         {
             if (!Nodes.ContainsKey(value))
             {
-                Nodes[value] = new Node<T>(value, handlerType, mode);
+                Nodes[value] = new Node<T>(value, handlerTypeName, mode);
             }
         }
 
         public void AddDependency(T from, T to, DependencyType dependencyType)
         {
-            if (!Nodes.ContainsKey(from) || !Nodes.ContainsKey(to))
+            if (Nodes.ContainsKey(from) && Nodes.ContainsKey(to))
             {
-                throw new ArgumentException("Both nodes must be added before adding a dependency.");
+                Nodes[to].Dependencies.Add((Nodes[from], dependencyType));
             }
-
-            Nodes[to].Dependencies.Add((Nodes[from], dependencyType));
         }
 
-        public List<Node<T>> GetDependentNodes(T nodeValue)
+        public IEnumerable<Node<T>> GetDependentNodes(T value)
         {
-            return Nodes.Values
-                        .Where(n => n.Dependencies.Any(d => d.Node.Value.Equals(nodeValue)))
-                        .ToList();
+            return Nodes.Values.Where(node => node.Dependencies.Any(dep => dep.Node.Value.Equals(value)));
         }
     }
-
 
 }
